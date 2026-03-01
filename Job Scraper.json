@@ -1,0 +1,437 @@
+{
+  "name": "Job Scraper",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        288,
+        16
+      ],
+      "id": "e21425bd-695f-4897-976d-c4ccbbcebb69",
+      "name": "Manual Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "Actor tasks",
+        "operation": "Run task and get dataset",
+        "actorTaskId": {
+          "__rl": true,
+          "value": "4SKAqN4fa13pLtxbY",
+          "mode": "list",
+          "cachedResultName": "Indeed Scraper (Task) final",
+          "cachedResultUrl": "https://console.apify.com/actors/tasks/4SKAqN4fa13pLtxbY/input"
+        }
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        752,
+        16
+      ],
+      "id": "c36a54f7-572f-47c8-8755-dfb04d304fc7",
+      "name": "Indeed",
+      "credentials": {
+        "apifyApi": {
+          "id": "nKVrSdLmlLIE77hb",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "Actor tasks",
+        "actorTaskId": {
+          "__rl": true,
+          "value": "CGJLt7dGYlbGogrFq",
+          "mode": "list",
+          "cachedResultName": "Indeed Scraper (Task)",
+          "cachedResultUrl": "https://console.apify.com/actors/tasks/CGJLt7dGYlbGogrFq/input"
+        },
+        "timeout": {}
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        752,
+        208
+      ],
+      "id": "5e42e5aa-5f95-453b-aeea-d9edc7b6ad88",
+      "name": "Welcome to the jungle",
+      "credentials": {
+        "apifyApi": {
+          "id": "nKVrSdLmlLIE77hb",
+          "name": "Apify account"
+        }
+      },
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        752,
+        -176
+      ],
+      "id": "965d7260-53f2-4a38-9e05-0fd58bd0cc5e",
+      "name": "Upwork",
+      "credentials": {
+        "apifyApi": {
+          "id": "nKVrSdLmlLIE77hb",
+          "name": "Apify account"
+        }
+      },
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($json) }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Rol de la IA: Eres un reclutador senior y experto en empleabilidad y CVs, especializado en puestos de tecnología, IA y automatización. Tu objetivo es crear cartas de motivación que conecten perfectamente las motivaciones del candidato con el puesto, en tono **entusiasta, profesional y cercano**.\n\nMotivaciones del candidato (siempre deben reflejarse en la carta):\n- Aprender de IA\n- Aplicar mis conocimientos de IA\n- Compartir con personas que tengan mucha ambición\n- Desarrollar mi red\n- Aportar a proyectos de impacto\n\nInstrucciones de formato:\n- Carta de motivación: **1 párrafo, 5 líneas aproximadamente**, clara, concisa, persuasiva.\n- Adaptar la carta según la industria y el tipo de empresa (IA, automatización, software, startups o corporativo tech).\n- Incluir ejemplos de cómo las motivaciones del candidato se alinean con el rol.\n- Nunca copiar literalmente el description del empleo; resumir y conectar con el impacto del rol.\n\nShots de ejemplo de cartas (para contexto de tono y estilo):\n1. \"Je suis très intéressé par le poste d’alternant Product Manager chez AlumnForce, notamment pour la gestion des KPIs produits et l’amélioration continue, qui correspond parfaitement à mon expérience actuelle. En tant que leader technique de ma startup, je travaille quotidiennement avec des outils comme Jira et j’applique des méthodologies agiles pour suivre le backlog et coordonner les équipes.\"\n2. \"I’m driven by impact, speed, and building things that matter. Paradox’s mission, pace, and obsession with AI deeply resonate with me. I see this role as a unique opportunity to contribute directly to bold growth, work alongside top talent, and help shape an iconic brand that transforms lives.\"\n3. \"Curieux, organisé et engagé, je suis motivé à apporter un réel impact tout en me préparant à mon objectif : devenir un fondateur capable de scaler un projet à l’international.\"\n\nJSON esperado:"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1344,
+        16
+      ],
+      "id": "012c2950-691c-4c6f-8d32-f3b1d405b1b9",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "arcee-ai/trinity-large-preview:free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        192
+      ],
+      "id": "37dc9a46-de32-4552-972a-2dc86eff2cf7",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Plk5wt5XccjpNdrY",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Datos del AI Agent (nodo actual)\nconst aiItems = $input.all();\n\n// Datos del nodo indeed (nodo anterior al AI)\nconst jobItems = $('Indeed').all();\n\nconst results = [];\n\nfor (let i = 0; i < aiItems.length; i++) {\n  try {\n    const job = jobItems[i]?.json ?? {};\n    const aiRaw = aiItems[i]?.json?.output ?? '';\n\n    // Limpia el output del AI (quita comillas externas si es string simple)\n    const cleaned = aiRaw\n      .replace(/^```json\\n?/i, '')\n      .replace(/```$/i, '')\n      .replace(/^\"([\\s\\S]*)\"$/, '$1') // quita comillas wrapper\n      .trim();\n\n    results.push({\n      json: {\n        // Datos del job\n        id:               job.id               ?? null,\n        company:          job.company          ?? null,\n        position:         job.positionName     ?? null,\n        job_type:         job.jobType?.[0]     ?? null,\n        location:         job.location         ?? null,\n        salary:           job.salary           ?? null,\n        url:              job.url              ?? null,\n        url_apply:        job.externalApplyLink ?? null,\n        url_company:      job.companyInfo?.url ?? null,\n        posted_at:        job.postedAt         ?? null,\n        rating:           job.rating           ?? null,\n        is_expired:       job.isExpired        ?? false,\n        company_logo:     job.companyInfo?.companyLogo ?? null,\n        company_size_min: job.companyInfo?.companySize?.min ?? null,\n        company_size_max: job.companyInfo?.companySize?.max ?? null,\n\n        // Output del AI (texto plano — carta de motivación)\n        carta_motivacion: cleaned,\n\n        // Meta\n        _parsed_at: new Date().toISOString(),\n      }\n    });\n\n  } catch (e) {\n    results.push({\n      json: {\n        _error: true,\n        _error_message: e.message,\n        _index: i,\n        _parsed_at: new Date().toISOString(),\n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        16
+      ],
+      "id": "72d9c5fb-8c58-4380-afdc-d4c609c1c3e9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1T-nc9TuTmi1UF8DY1OLwYUUDf-II298RdEDtN0EeYM0",
+          "mode": "list",
+          "cachedResultName": "Stage",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-nc9TuTmi1UF8DY1OLwYUUDf-II298RdEDtN0EeYM0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 108416491,
+          "mode": "list",
+          "cachedResultName": "Freelance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1T-nc9TuTmi1UF8DY1OLwYUUDf-II298RdEDtN0EeYM0/edit#gid=108416491"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Company": "={{ $json.company }}",
+            "Job Type": "={{ $json.job_type }}",
+            "Job Title": "={{ $json.position }}",
+            "URL Web site": "={{ $json.url }}",
+            "URL to apply": "={{ $json.url_apply }}",
+            "Location": "={{ $json.location }}",
+            "Salario": "={{ $json.salary }}",
+            "Lettre  Motivation": "={{ $json.carta_motivacion }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL Web site",
+              "displayName": "URL Web site",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Type",
+              "displayName": "Job Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL to apply",
+              "displayName": "URL to apply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industria",
+              "displayName": "Industria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Salario",
+              "displayName": "Salario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Clientes principales",
+              "displayName": "Clientes principales",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Competidores principales",
+              "displayName": "Competidores principales",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Que hace ",
+              "displayName": "Que hace ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Como hace billete",
+              "displayName": "Como hace billete",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Entrevista",
+              "displayName": "Entrevista",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lettre  Motivation",
+              "displayName": "Lettre  Motivation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1904,
+        16
+      ],
+      "id": "1c9a8ae7-4561-43c6-a25d-13afeba44c4f",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wWu0nEpaksroKhx2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Indeed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Welcome to the jungle",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upwork",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Indeed": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Welcome to the jungle": {
+      "main": [
+        []
+      ]
+    },
+    "Upwork": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f911d26a-1e39-447b-b672-31f61a77aee0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "efed0f7f0e0f62f06c83f4b218878ef5bb732fb40c14096971a4d023985ee0a7"
+  },
+  "id": "gdDRm24nz4FLqdpA",
+  "tags": []
+}
